@@ -1,4 +1,5 @@
 ﻿using Highscores.Domain.Entities;
+using Highscores.Infrastructure.Data.Mappings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Highscores.Infrastructure.Data;
@@ -10,4 +11,7 @@ public class HighscoresDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(_connectionString);
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+        => modelBuilder.ApplyConfiguration(new HighscoreMapping());
 }
