@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Highscores.Domain\Highscores.Domain.csproj" />
+    <ProjectReference Include="..\Highscores.Infrastructure\Highscores.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
