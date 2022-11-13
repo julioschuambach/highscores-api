@@ -1,22 +1,23 @@
 using Highscores.Api.ViewModels;
 using Highscores.Domain.Entities;
 using Highscores.Infrastructure.Data;
+using Highscores.Infrastructure.Data.Repositories;
+using Highscores.Infrastructure.Data.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<HighscoresDbContext>();
+builder.Services.AddScoped<IHighscoreRepository, HighscoreRepository>();
 
 var app = builder.Build();
 
-app.MapPost("/highscores", ([FromServices] HighscoresDbContext context, [FromBody] HighscoreViewModel viewModel) =>
+app.MapPost("/highscores", ([FromServices] IHighscoreRepository repository, [FromBody] HighscoreViewModel viewModel) =>
 {
-    Highscore highscore = new(viewModel.Player, viewModel.Score);
+    Highscore newHighscore = new(viewModel.Player, viewModel.Score);
 
     try
     {
-        context.Highscores.Add(highscore);
-        context.SaveChanges();
+        var highscore = repository.CreateHighscore(newHighscore);
 
         return Results.Created("/highscores", highscore);
     }
@@ -26,14 +27,11 @@ app.MapPost("/highscores", ([FromServices] HighscoresDbContext context, [FromBod
     }
 });
 
-app.MapGet("/highscores", ([FromServices] HighscoresDbContext context) =>
+app.MapGet("/highscores", ([FromServices] IHighscoreRepository repository) =>
 {
     try
     {
-        var highscores = context.Highscores
-                            .AsNoTracking()
-                            .OrderByDescending(x => x.Score)
-                            .ToList();
+        var highscores = repository.GetAllHighscores();
 
         return Results.Ok(highscores);
     }
@@ -43,15 +41,11 @@ app.MapGet("/highscores", ([FromServices] HighscoresDbContext context) =>
     }
 });
 
-app.MapGet("/highscores/{player}", ([FromServices] HighscoresDbContext context, [FromRoute] string player) =>
+app.MapGet("/highscores/{player}", ([FromServices] IHighscoreRepository repository, [FromRoute] string player) =>
 {
     try
     {
-        var highscores = context.Highscores
-                            .AsNoTracking()
-                            .Where(x => x.Player == player)
-                            .OrderByDescending(x => x.Score)
-                            .ToList();
+        var highscores = repository.GetHighscoresByPlayerName(player);
 
         return Results.Ok(highscores);
     }
