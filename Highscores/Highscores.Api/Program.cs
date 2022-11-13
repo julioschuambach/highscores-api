@@ -43,4 +43,22 @@ app.MapGet("/highscores", ([FromServices] HighscoresDbContext context) =>
     }
 });
 
+app.MapGet("/highscores/{player}", ([FromServices] HighscoresDbContext context, [FromRoute] string player) =>
+{
+    try
+    {
+        var highscores = context.Highscores
+                            .AsNoTracking()
+                            .Where(x => x.Player == player)
+                            .OrderByDescending(x => x.Score)
+                            .ToList();
+
+        return Results.Ok(highscores);
+    }
+    catch
+    {
+        return Results.Problem("Falha interna no servidor!");
+    }
+});
+
 app.Run();
