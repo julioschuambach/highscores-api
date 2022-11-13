@@ -2,6 +2,7 @@ using Highscores.Api.ViewModels;
 using Highscores.Domain.Entities;
 using Highscores.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<HighscoresDbContext>();
@@ -18,6 +19,23 @@ app.MapPost("/highscores", ([FromServices] HighscoresDbContext context, [FromBod
         context.SaveChanges();
 
         return Results.Created("/highscores", highscore);
+    }
+    catch
+    {
+        return Results.Problem("Falha interna no servidor!");
+    }
+});
+
+app.MapGet("/highscores", ([FromServices] HighscoresDbContext context) =>
+{
+    try
+    {
+        var highscores = context.Highscores
+                            .AsNoTracking()
+                            .OrderByDescending(x => x.Score)
+                            .ToList();
+
+        return Results.Ok(highscores);
     }
     catch
     {
