@@ -4,7 +4,7 @@ namespace Highscores.Infrastructure.Data.Repositories.Interfaces;
 
 public interface IHighscoreRepository
 {
-    Highscore CreateHighscore(Highscore highscore);
-    IEnumerable<Highscore> GetAllHighscores();
-    IEnumerable<Highscore> GetHighscoresByPlayerName(string player);
+    Task<Highscore> CreateHighscore(Highscore highscore);
+    Task<IEnumerable<Highscore>> GetAllHighscores();
+    Task<IEnumerable<Highscore>> GetHighscoresByPlayerName(string player);
 }
