@@ -11,13 +11,13 @@ builder.Services.AddScoped<IHighscoreRepository, HighscoreRepository>();
 
 var app = builder.Build();
 
-app.MapPost("/highscores", ([FromServices] IHighscoreRepository repository, [FromBody] HighscoreViewModel viewModel) =>
+app.MapPost("/highscores", async ([FromServices] IHighscoreRepository repository, [FromBody] HighscoreViewModel viewModel) =>
 {
     Highscore newHighscore = new(viewModel.Player, viewModel.Score);
 
     try
     {
-        var highscore = repository.CreateHighscore(newHighscore);
+        var highscore = await repository.CreateHighscore(newHighscore);
 
         return Results.Created("/highscores", highscore);
     }
@@ -27,11 +27,11 @@ app.MapPost("/highscores", ([FromServices] IHighscoreRepository repository, [Fro
     }
 });
 
-app.MapGet("/highscores", ([FromServices] IHighscoreRepository repository) =>
+app.MapGet("/highscores", async ([FromServices] IHighscoreRepository repository) =>
 {
     try
     {
-        var highscores = repository.GetAllHighscores();
+        var highscores = await repository.GetAllHighscores();
 
         return Results.Ok(highscores);
     }
@@ -41,11 +41,11 @@ app.MapGet("/highscores", ([FromServices] IHighscoreRepository repository) =>
     }
 });
 
-app.MapGet("/highscores/{player}", ([FromServices] IHighscoreRepository repository, [FromRoute] string player) =>
+app.MapGet("/highscores/{player}", async ([FromServices] IHighscoreRepository repository, [FromRoute] string player) =>
 {
     try
     {
-        var highscores = repository.GetHighscoresByPlayerName(player);
+        var highscores = await repository.GetHighscoresByPlayerName(player);
 
         return Results.Ok(highscores);
     }
