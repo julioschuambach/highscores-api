@@ -1,8 +1,9 @@
 using Highscores.Api.ViewModels.Highscores;
 using Highscores.Domain.Entities;
 using Highscores.Infrastructure.Data.Contexts;
+using Highscores.Infrastructure.Data.Interfaces.Repositories;
+using Highscores.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Highscores.Api;
 
@@ -11,6 +12,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddScoped<IHighscoresRepository, HighscoresRepository>();
         builder.Services.AddDbContext<HighscoresDbContext>();
 
         var app = builder.Build();
@@ -21,15 +23,13 @@ public class Program
 
     private static void MapEndpoints(WebApplication app)
     {
-        app.MapPost("/highscores", ([FromServices] HighscoresDbContext context, [FromBody] CreateHighscoreViewModel createViewModel) =>
+        app.MapPost("/highscores", ([FromServices] IHighscoresRepository repository, [FromBody] CreateHighscoreViewModel createViewModel) =>
         {
             Highscore highscore = new(createViewModel.Player, createViewModel.Score);
 
             try
             {
-                context.Highscores.Add(highscore);
-                context.SaveChanges();
-                return Results.Created($"/highscores/{highscore.Id}", highscore);
+                return Results.Created($"/highscores/{highscore.Id}", repository.CreateHighscore(highscore));
             }
             catch (Exception ex)
             {
@@ -37,17 +37,11 @@ public class Program
             }
         });
 
-        app.MapGet("/highscores/{player}", ([FromServices] HighscoresDbContext context, [FromRoute] string player) =>
+        app.MapGet("/highscores/{player}", ([FromServices] IHighscoresRepository repository, [FromRoute] string player) =>
         {
             try
             {
-                var highscores = context.Highscores
-                                        .AsNoTracking()
-                                        .Where(x => x.Player == player)
-                                        .OrderByDescending(x => x.Score)
-                                        .ToList();
-
-                return Results.Ok(highscores);
+                return Results.Ok(repository.GetAllHighscoresByPlayerName(player));
             }
             catch (Exception ex)
             {
@@ -55,16 +49,11 @@ public class Program
             }
         });
 
-        app.MapGet("/highscores", ([FromServices] HighscoresDbContext context) =>
+        app.MapGet("/highscores", ([FromServices] IHighscoresRepository repository) =>
         {
             try
             {
-                var highscores = context.Highscores
-                                        .AsNoTracking()
-                                        .OrderByDescending(x => x.Score)
-                                        .ToList();
-
-                return Results.Ok(highscores);
+                return Results.Ok(repository.GetAllHighscores());
             }
             catch (Exception ex)
             {
