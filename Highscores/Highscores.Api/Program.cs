@@ -23,13 +23,13 @@ public class Program
 
     private static void MapEndpoints(WebApplication app)
     {
-        app.MapPost("/highscores", ([FromServices] IHighscoresRepository repository, [FromBody] CreateHighscoreViewModel createViewModel) =>
+        app.MapPost("/highscores", async ([FromServices] IHighscoresRepository repository, [FromBody] CreateHighscoreViewModel createViewModel) =>
         {
             Highscore highscore = new(createViewModel.Player, createViewModel.Score);
 
             try
             {
-                return Results.Created($"/highscores/{highscore.Id}", repository.CreateHighscore(highscore));
+                return Results.Created($"/highscores/{highscore.Id}", await repository.CreateHighscore(highscore));
             }
             catch (Exception ex)
             {
@@ -37,11 +37,11 @@ public class Program
             }
         });
 
-        app.MapGet("/highscores/{player}", ([FromServices] IHighscoresRepository repository, [FromRoute] string player) =>
+        app.MapGet("/highscores/{player}", async ([FromServices] IHighscoresRepository repository, [FromRoute] string player) =>
         {
             try
             {
-                return Results.Ok(repository.GetAllHighscoresByPlayerName(player));
+                return Results.Ok(await repository.GetAllHighscoresByPlayerName(player));
             }
             catch (Exception ex)
             {
@@ -49,11 +49,11 @@ public class Program
             }
         });
 
-        app.MapGet("/highscores", ([FromServices] IHighscoresRepository repository) =>
+        app.MapGet("/highscores", async ([FromServices] IHighscoresRepository repository) =>
         {
             try
             {
-                return Results.Ok(repository.GetAllHighscores());
+                return Results.Ok(await repository.GetAllHighscores());
             }
             catch (Exception ex)
             {
