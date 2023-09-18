@@ -12,31 +12,31 @@ public class HighscoresRepository : IHighscoresRepository
     public HighscoresRepository(HighscoresDbContext context)
         => _context = context;
 
-    public Highscore CreateHighscore(Highscore highscore)
+    public async Task<Highscore> CreateHighscore(Highscore highscore)
     {
-        _context.Highscores.Add(highscore);
-        _context.SaveChanges();
+        await _context.Highscores.AddAsync(highscore);
+        await _context.SaveChangesAsync();
 
         return highscore;
     }
 
-    public IEnumerable<Highscore> GetAllHighscoresByPlayerName(string player)
+    public async Task<IEnumerable<Highscore>> GetAllHighscoresByPlayerName(string player)
     {
-        var highscores = _context.Highscores
-                                 .AsNoTracking()
-                                 .Where(x => x.Player == player)
-                                 .OrderByDescending(x => x.Score)
-                                 .ToList();
+        var highscores = await _context.Highscores
+                                       .AsNoTracking()
+                                       .Where(x => x.Player == player)
+                                       .OrderByDescending(x => x.Score)
+                                       .ToListAsync();
 
         return highscores;
     }
 
-    public IEnumerable<Highscore> GetAllHighscores()
+    public async Task<IEnumerable<Highscore>> GetAllHighscores()
     {
-        var highscores = _context.Highscores
-                                 .AsNoTracking()
-                                 .OrderByDescending(x => x.Score)
-                                 .ToList();
+        var highscores = await _context.Highscores
+                                       .AsNoTracking()
+                                       .OrderByDescending(x => x.Score)
+                                       .ToListAsync();
 
         return highscores;
     }
