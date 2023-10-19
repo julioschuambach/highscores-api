@@ -23,5 +23,5 @@ After running the project, you can access the API by the following link:
 `/highscores` - Used to post a new highscore
 
 **Get**
-`/highscores` - Used to get all highscores
+`/highscores` - Used to get all highscores<br>
 `/highscores/{player}` - Used to get all highscores from a specific player
