@@ -16,7 +16,7 @@ This project consists of a Minimal ASP.NET API, for highscores management of a p
 ### Running the project
 `dotnet run`
 
-After running the project, you can access the API by the following link: 
+After running the project, you can access the API by the following link: `http://localhost:5062`
 
 ## Endpoints
 **Post**<br>
